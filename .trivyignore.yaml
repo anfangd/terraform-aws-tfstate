@@ -1,0 +1,13 @@
+misconfigurations:
+  - id: AVD-AWS-0089
+    file: main.tf
+    # expired_at:
+    statement: "There is optional to create access log bucket or not."
+  - id: AVD-AWS-0024
+    # file:
+    # expired_at:
+    statement: "LockID do not needs recovery."
+  - id: AVD-AWS-0025
+    # file:
+    # expired_at:
+    statement: "LockID do not needs encryption."

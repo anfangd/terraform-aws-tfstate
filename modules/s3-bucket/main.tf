@@ -1,12 +1,9 @@
 data "external" "s3_bucket_check" {
-  program = ["bash", "${path.module}/scripts/check_s3_bucket.sh", var.bucket]
-}
-data "aws_s3_bucket" "this" {
-  bucket = var.bucket
+  program = ["bash", "${path.module}/scripts/check_s3_bucket.sh", var.bucket_name]
 }
 
 resource "aws_s3_bucket" "this" {
-  bucket = var.bucket
+  bucket = var.bucket_name
   # bucket_prefix =
 
   force_destroy       = var.force_destroy
@@ -15,16 +12,17 @@ resource "aws_s3_bucket" "this" {
 
   lifecycle {
     precondition {
-      condition     = data.aws_s3_bucket.this.id != "" ? true : !data.external.s3_bucket_check.result["exists"]
-      error_message = "The S3 bucket name '${var.bucket}' already exists. Please choose a different name."
+      condition     = !(data.external.s3_bucket_check.result["exists"] == true && data.external.s3_bucket_check.result["status"] == "403")
+      error_message = "The S3 bucket name '${var.bucket_name}' already exists. Please choose a different name."
     }
   }
 }
 
+# MEMO: This module is not support S3 bucket ACL because it is DUPLICATED.
 # resource "aws_s3_bucket_acl" "this" {
 #   bucket = aws_s3_bucket.this.id
 #   acl    = "private"
-
+#
 #   depends_on = [aws_s3_bucket_ownership_controls.this]
 # }
 
@@ -38,36 +36,17 @@ resource "aws_s3_bucket_versioning" "this" {
     # Valid values: "Enabled" or "Disabled"
     mfa_delete = try(var.versioning["mfa_delete"], null)
   }
-
-  lifecycle {
-    precondition {
-      condition     = can(regex("Enabled", try(var.versioning.mfa_delete, null))) ? can(length(var.versioning.mfa) > 0) : true
-      error_message = "The MFA must be specified when the MFA delete is enabled"
-    }
-    precondition {
-      condition     = var.versioning.status == null || can(regex("Enabled|Suspended|Disabled", var.versioning["status"]))
-      error_message = "The versioning status must be either Enabled, Suspended or Disabled"
-    }
-    precondition {
-      condition     = var.versioning.mfa_delete == null || can(regex("Enabled|Disabled", var.versioning.mfa_delete, ""))
-      error_message = "The versioning MFA delete must be either Enabled or Disabled"
-    }
-  }
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   bucket = aws_s3_bucket.this.id
 
   rule {
-    bucket_key_enabled = try(var.server_side_encryption.bucket_key_enabled, null)
+    bucket_key_enabled = try(var.server_side_encryption.bucket_key_enabled, false)
 
-    dynamic "apply_server_side_encryption_by_default" {
-      for_each = try([var.server_side_encryption.rule.apply_server_side_encryption_by_default], [])
-
-      content {
-        sse_algorithm     = apply_server_side_encryption_by_default.value.sse_algorithm
-        kms_master_key_id = try(apply_server_side_encryption_by_default.value.kms_master_key_id, null)
-      }
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = try(var.server_side_encryption.rule.apply_server_side_encryption_by_default.sse_algorithm, "AES256")
+      kms_master_key_id = try(var.server_side_encryption.rule.apply_server_side_encryption_by_default.kms_master_key_id, null)
     }
   }
 
@@ -158,4 +137,20 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
     }
   }
 
+}
+
+resource "aws_s3_bucket_logging" "this" {
+  count = length(var.logging.target_bucket) >= 3 ? 1 : 0
+
+  bucket = aws_s3_bucket.this.id
+
+  target_bucket = var.logging.target_bucket
+  target_prefix = var.logging.target_prefix
+
+  lifecycle {
+    precondition {
+      condition     = can(length(var.logging.target_bucket) > 3)
+      error_message = "The target bucket must be at least 3 characters long"
+    }
+  }
 }

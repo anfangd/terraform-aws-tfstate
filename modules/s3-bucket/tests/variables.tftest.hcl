@@ -5,7 +5,7 @@ provider "aws" {
 run "test_bucket_default" {
   command = plan
   variables {
-    bucket = "my-bucket"
+    bucket_name = "my-bucket"
     # force_destroy       = false
     # object_lock_enabled = false
     # tags                = {}
@@ -38,7 +38,7 @@ run "test_bucket_default" {
     # }
   }
   assert {
-    condition     = var.bucket == "my-bucket"
+    condition     = var.bucket_name == "my-bucket"
     error_message = "The bucket name must be my-bucket"
   }
 }
@@ -46,10 +46,10 @@ run "test_bucket_default" {
 run "test_bucket_custom_1" {
   command = plan
   variables {
-    bucket = "my-bucket"
+    bucket              = "my-bucket"
     force_destroy       = true
     object_lock_enabled = true
-    tags                = {
+    tags = {
       Name = "my-bucket"
     }
     versioning = {
@@ -58,7 +58,7 @@ run "test_bucket_custom_1" {
     server_side_encryption = {
       rule = {
         apply_server_side_encryption_by_default = {
-          sse_algorithm     = "AES256"
+          sse_algorithm = "AES256"
         }
       }
     }
@@ -68,7 +68,7 @@ run "test_bucket_custom_1" {
       status = "Enabled"
       filter = {
         prefix = "/"
-        tags   = {
+        tags = {
           Name = "my-bucket"
         }
       }
@@ -83,7 +83,7 @@ run "test_bucket_custom_1" {
     }
   }
   assert {
-    condition     = var.bucket == "my-bucket"
+    condition     = var.bucket_name == "my-bucket"
     error_message = "The bucket name must be my-bucket"
   }
 }
@@ -93,7 +93,7 @@ run "test_bucket_error_1" {
   variables {
     bucket = ""
   }
-  expect_failures = [var.bucket]
+  expect_failures = [var.bucket_name]
 }
 
 run "test_bucket_error_2" {
@@ -101,22 +101,22 @@ run "test_bucket_error_2" {
   variables {
     bucket = join("", [for i in range(64) : "x"])
   }
-  expect_failures = [var.bucket]
+  expect_failures = [var.bucket_name]
 }
 
 run "test_null_error_1" {
   command = plan
   variables {
-    bucket = null
-    force_destroy = null
+    bucket              = null
+    force_destroy       = null
     object_lock_enabled = null
-    tags = null
+    tags                = null
     versioning = {
       status = null
     }
     server_side_encryption = null
   }
   expect_failures = [
-    var.bucket,
+    var.bucket_name,
   ]
 }

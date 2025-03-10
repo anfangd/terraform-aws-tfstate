@@ -1,9 +1,9 @@
 run "apply_s3_bucket" {
   variables {
-    bucket = "my-bucket-xxxxyyyyy1111122223333"
+    bucket_name         = "my-bucket-xxxxyyyyy1111122223333"
     force_destroy       = true
     object_lock_enabled = true
-    tags                = {
+    tags = {
       Name = "my-bucket-xxxxyyyyy1111122223333"
     }
     versioning = {
@@ -12,7 +12,7 @@ run "apply_s3_bucket" {
     server_side_encryption = {
       rule = {
         apply_server_side_encryption_by_default = {
-          sse_algorithm     = "AES256"
+          sse_algorithm = "AES256"
         }
       }
     }
@@ -32,7 +32,7 @@ run "apply_s3_bucket" {
     }
   }
   assert {
-    condition     = var.bucket == "my-bucket-xxxxyyyyy1111122223333"
+    condition     = var.bucket_name == "my-bucket-xxxxyyyyy1111122223333"
     error_message = "The bucket name must be my-bucket-xxxxyyyyy1111122223333"
   }
 }

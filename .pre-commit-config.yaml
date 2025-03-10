@@ -1,0 +1,15 @@
+default_stages: [pre-commit]
+repos:
+    - repo: https://github.com/antonbabenko/pre-commit-terraform
+      rev: v1.97.4
+      hooks:
+          - id: terraform_fmt
+          - id: terraform_validate
+          - id: terraform_tflint
+          - id: terraform_checkov
+          - id: terraform_trivy
+            args:
+             - --args=--ignorefile=__GIT_WORKING_DIR__/.trivyignore.yaml
+          # - id: infracost_breakdown
+          - id: terraform_docs
+          # - id: terrascan

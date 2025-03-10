@@ -1,42 +1,58 @@
-variable "bucket" {
+# ---------------------------------------------------------------------------------------------------------------------
+# ENVIRONMENT VARIABLES
+# Define these secrets as environment variables
+# ---------------------------------------------------------------------------------------------------------------------
+
+# This module has no environment variables
+
+# ---------------------------------------------------------------------------------------------------------------------
+# MODULE PARAMETERS
+# These variables are expected to be passed in by the operator
+# ---------------------------------------------------------------------------------------------------------------------
+
+variable "bucket_name" {
   description = "The name of the bucket"
   type        = string
   nullable    = false
-  default     = ""
+  # default     = ""
 
   validation {
-    condition     = length(var.bucket) >= 3
+    condition     = length(var.bucket_name) >= 3
     error_message = "The name of the bucket must not be empty"
   }
   validation {
-    condition     = length(var.bucket) < 63
+    condition     = length(var.bucket_name) < 63
     error_message = "The name of the bucket must not exceed 63 characters"
   }
   validation {
-    condition     = var.bucket == lower(var.bucket)
+    condition     = var.bucket_name == lower(var.bucket_name)
     error_message = "The name of the bucket must be in lowercase"
   }
 }
 
+# ---------------------------------------------------------------------------------------------------------------------
+# OPTIONAL PARAMETERS
+# These variables have defaults and may be overridden
+# ---------------------------------------------------------------------------------------------------------------------
+
 variable "force_destroy" {
   description = "A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error"
   type        = bool
-  default     = false
   nullable    = false
+  default     = false
 }
 
 variable "object_lock_enabled" {
   description = "A boolean that indicates whether this bucket should have Object Lock enabled"
   type        = bool
-  default     = false
   nullable    = false
+  default     = false
 }
 
 variable "tags" {
   description = "A mapping of tags to assign to the bucket"
   type        = map(any)
   default     = {}
-  nullable    = true
 }
 
 variable "versioning" {
@@ -46,8 +62,22 @@ variable "versioning" {
     status     = string
     mfa_delete = optional(string)
   })
+  nullable = false
   default = {
     status = "Enabled"
+  }
+
+  validation {
+    condition     = (var.versioning.mfa == null && var.versioning.mfa_delete == null) && var.versioning.mfa_delete == "Enabled" ? can(length(var.versioning.mfa) > 0) : true
+    error_message = "The MFA must be specified when the MFA delete is enabled"
+  }
+  validation {
+    condition     = can(regex("Enabled|Suspended|Disabled", try(var.versioning.status, "")))
+    error_message = "The versioning status must be either Enabled, Suspended or Disabled"
+  }
+  validation {
+    condition     = var.versioning.mfa_delete == null || can(regex("Enabled|Disa bled", var.versioning.mfa_delete, ""))
+    error_message = "The versioning MFA delete must be either Enabled or Disabled"
   }
 }
 
@@ -114,5 +144,16 @@ variable "intelligent_tiering" {
   validation {
     condition     = var.intelligent_tiering.status == null || can(regex("Enabled|Disabled", var.intelligent_tiering.status))
     error_message = "The intelligent tiering status must be either Enabled or Disabled"
+  }
+}
+
+variable "logging" {
+  description = "A mapping of logging configuration"
+  type = object({
+    target_bucket = string
+    target_prefix = optional(string)
+  })
+  default = {
+    target_bucket = ""
   }
 }
