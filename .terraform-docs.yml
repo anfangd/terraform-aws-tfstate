@@ -1,0 +1,4 @@
+formatter: "markdown table"
+
+sort:
+  enabled: false

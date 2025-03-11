@@ -7,9 +7,13 @@ repos:
           - id: terraform_validate
           - id: terraform_tflint
           - id: terraform_checkov
+            args:
+            - --args=--config-file __GIT_WORKING_DIR__/.checkov.yaml
           - id: terraform_trivy
             args:
              - --args=--ignorefile=__GIT_WORKING_DIR__/.trivyignore.yaml
           # - id: infracost_breakdown
           - id: terraform_docs
+            args:
+            - --args=--config=.terraform-docs.yml
           # - id: terrascan

@@ -21,6 +21,7 @@ variable "env" {
       [
         # List of valid environments
         # cf. [Deployment environment - Wikipedia](https://en.wikipedia.org/wiki/Deployment_environment#Development)
+        # --- SDLC ---
         "dev",     # Development
         "trunk",   # Trunk
         "integ",   # Integration
@@ -33,7 +34,7 @@ variable "env" {
         "demo",    # Demo
         "prod",    # Production
         "live",    # Live
-        #----
+        # --- Non SDLC ---
         "sec",     # Security
         "sandbox", # Sandbox
         "deploy",  # Deployment
@@ -123,83 +124,118 @@ variable "tfstate_lock_type" {
   }
 }
 
-variable "s3" {
-  description = "The configuration for the S3 bucket"
-  type = object({
-    force_destroy       = bool        # A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error
-    object_lock_enabled = bool        # A boolean that indicates whether this bucket should have Object Lock enabled
-    tags                = map(string) # A mapping of tags to assign to the bucket
-    versioning = object({             # A mapping of versioning configuration
-      status = string
-    })
-    server_side_encryption = object({ # A mapping of server side encryption configuration
-      rule = object({
-        bucket_key_enabled = bool
-        apply_server_side_encryption_by_default = object({
-          sse_algorithm = string
-        })
-      })
-    })
-    intelligent_tiering = object({ # A mapping of tags to assign to the bucket
-      status = string
-      filter = object({
-        prefix = string
-      })
-      tiering = map(object({
-        days = number
-      }))
-    })
-  })
-  default = {
-    force_destroy       = false
-    object_lock_enabled = false
-    tags                = {}
-    versioning = {
-      status = "Enabled"
-    }
-    server_side_encryption = {
-      rule = {
-        bucket_key_enabled = false
-        apply_server_side_encryption_by_default = {
-          sse_algorithm = "AES256"
-        }
-      }
-    }
-    intelligent_tiering = {
-      status = "Enabled"
-      filter = {
-        prefix = "/"
-      }
-      tiering = {
-        ARCHIVE_ACCESS = {
-          days = 125
-        }
-        DEEP_ARCHIVE_ACCESS = {
-          days = 180
-        }
-      }
-    }
+# --- S3 Bucket ---
+
+variable "tags" {
+  description = ""
+  type        = map(string)
+  nullable    = true
+  default     = {}
+}
+
+variable "enable_force_destroy" {
+  description = ""
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
+variable "enable_object_lock" {
+  description = ""
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
+# --- S3 Bucket Server Side Encryption ---
+
+variable "sse_algorithm" {
+  description = ""
+  type        = string
+  nullable    = false
+  default     = "AES256"
+
+  validation {
+    condition     = can(regex("AES256|aws:kms|aws:kms:dsse", var.sse_algorithm))
+    error_message = "The server side encryption algorithm must be either AES256, aws:kms or aws:kms:dsse"
   }
 }
 
-variable "dynamodb" {
-  description = "The configuration for the DynamoDB table"
-  type = object({
-    table_name = optional(string)
-    tags       = optional(map(string))
-  })
-  default = {
-    table_name = ""
-    tags       = {}
+variable "enable_sse_bucket_key" {
+  description = ""
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
+variable "kms_master_key_id" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
+
+  validation {
+    condition     = can(regex("aws:kms|aws:kms:dsse", var.sse_algorithm)) ? var.kms_master_key_id != null : true
+    error_message = ""
   }
 }
 
-variable "iam" {
-  description = "The configuration for the IAM policy"
-  type = object({
-    policy_name = string
-  })
-  default = {
-    policy_name = ""
+# --- S3 Bucket Inteligent Tiering ---
+
+variable "enable_inteligent_tiering" {
+  description = ""
+  type        = string
+  nullable    = false
+  default     = "Enabled"
+
+  validation {
+    condition     = var.enable_inteligent_tiering == null || can(regex("Enabled|Disabled", var.enable_inteligent_tiering))
+    error_message = "The intelligent tiering status must be either Enabled or Disabled"
   }
+}
+
+variable "tiering_level" {
+  description = ""
+  type        = string
+  nullable    = false
+  default     = "Basic"
+
+  validation {
+    condition     = can(regex("Basic|Long", var.tiering_level))
+    error_message = ""
+  }
+}
+
+# --- S3 Bucket Access Logging ---
+
+variable "logging_target_bucket" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
+}
+
+variable "logging_target_prefix" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
+}
+
+# --- DynamoDB Table ---
+
+variable "dynamodb_table_name" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
+}
+
+# --- IAM Policy ---
+
+variable "iam_policy_name" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
 }

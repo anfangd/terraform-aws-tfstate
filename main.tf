@@ -29,16 +29,35 @@ locals {
     TfModuleName    = local.terraform.module.name
     TfModuleVersion = local.terraform.module.version
   }
+  inteligent_tiering_pattern = {
+    Basic = {
+      ARCHIVE_ACCESS = {
+        days = 125
+      }
+      DEEP_ARCHIVE_ACCESS = {
+        days = 180
+      }
+    }
+    Long = {
+      ARCHIVE_ACCESS = {
+        days = 185
+      }
+      DEEP_ARCHIVE_ACCESS = {
+        days = 240
+      }
+    }
+  }
   s3 = {
-    bucket_name = "${var.env}-${var.product}-${var.usage}-${local.region_code[var.region]}-${var.suffix}"
-    tags        = merge(var.s3.tags, local.tags)
+    bucket_name        = "${var.env}-${var.product}-${var.usage}-${local.region_code[var.region]}-${var.suffix}"
+    tags               = merge(var.tags, local.tags)
+    inteligent_tiering = local.inteligent_tiering_pattern[try(var.tiering_level, "Basic")]
   }
   dynamodb = {
-    table_name = try(var.dynamodb.table_name, "") != "" ? var.dynamodb.table_name : "${var.env}-${var.product}-${var.usage}-${local.region_code[var.region]}"
-    tags       = merge(var.dynamodb.tags, local.tags)
+    table_name = try(var.dynamodb_table_name, null) != null ? var.dynamodb_table_name : "${var.env}-${var.product}-${var.usage}-${local.region_code[var.region]}"
+    tags       = merge(var.tags, local.tags)
   }
   iam_policy = {
-    policy_name = try(var.iam.policy_name, "") != "" ? var.iam.policy_name : "${var.env}-${var.product}-${var.usage}-${var.suffix}"
+    policy_name = try(var.iam_policy_name, null) != null ? var.iam_policy_name : "${var.env}-${var.product}-${var.usage}-${var.suffix}"
   }
 }
 
@@ -46,14 +65,25 @@ locals {
 
 module "s3" {
   source = "./modules/s3-bucket"
+  # version = "~> 0.0.1"
 
-  bucket_name            = local.s3.bucket_name
-  force_destroy          = var.s3.force_destroy
-  object_lock_enabled    = var.s3.object_lock_enabled
-  tags                   = local.s3.tags
-  versioning             = var.s3.versioning
-  server_side_encryption = var.s3.server_side_encryption
-  intelligent_tiering    = var.s3.intelligent_tiering
+  bucket_name          = local.s3.bucket_name
+  enable_force_destroy = var.enable_force_destroy
+  enable_object_lock   = var.enable_object_lock
+  tags                 = local.s3.tags
+
+  # enable_versioning_mfa_delete = "Disabled"
+  # versioning_mfa               = null
+
+  sse_algorithm         = var.sse_algorithm
+  enable_sse_bucket_key = var.enable_sse_bucket_key
+  sse_kms_master_key_id = var.kms_master_key_id
+
+  enable_inteligent_tiering = var.enable_inteligent_tiering
+  tiering                   = local.s3.inteligent_tiering
+
+  logging_target_bucket = var.logging_target_bucket
+  logging_target_prefix = var.logging_target_prefix
 }
 
 # --- Amazon DynamoDB ---

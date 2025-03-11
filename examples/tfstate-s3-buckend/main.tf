@@ -9,13 +9,15 @@ module "tfstate" {
 
   tfstate_lock_type = "DynamoDB"
 
-  # s3 = {
-  # }
+  enable_force_destroy = false
+  enable_object_lock   = false
+  sse_algorithm        = "AES256"
+  # enable_sse_bucket_key =
+  # kms_master_key_id =
+  # enable_inteligent_tiering =
+  # tiering_level =
+  # logging_target_bucket =
+  # logging_target_prefix =
 
-  dynamodb = {
-    table_name = "test-platform-tfstate-uw2"
-    tags = {
-      Name = "test-platform-tfstate-uw2"
-    }
-  }
+  dynamodb_table_name = "terraform-state-lock"
 }

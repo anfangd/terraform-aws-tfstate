@@ -32,9 +32,9 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_dynamodb"></a> [dynamodb](#input\_dynamodb) | The DynamoDB table to allow access | <pre>list(object({<br/>    table_arn = string # The ARN of the DynamoDB table to allow access<br/>  }))</pre> | `[]` | no |
 | <a name="input_policy_name"></a> [policy\_name](#input\_policy\_name) | The name of the IAM policy | `string` | `""` | no |
 | <a name="input_s3"></a> [s3](#input\_s3) | List of S3 bucket to allow access | <pre>list(object({<br/>    bucket_name = string           # The bucket name to allow access<br/>    key_prefix  = optional(string) # The key prefix to allow access<br/>  }))</pre> | <pre>[<br/>  {<br/>    "bucket_name": ""<br/>  }<br/>]</pre> | no |
+| <a name="input_dynamodb"></a> [dynamodb](#input\_dynamodb) | The DynamoDB table to allow access | <pre>list(object({<br/>    table_arn = string # The ARN of the DynamoDB table to allow access<br/>  }))</pre> | `[]` | no |
 
 ## Outputs
 

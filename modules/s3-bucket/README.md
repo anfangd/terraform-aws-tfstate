@@ -13,8 +13,8 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.88.0 |
 | <a name="provider_external"></a> [external](#provider\_external) | 2.3.4 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.88.0 |
 
 ## Modules
 
@@ -38,23 +38,28 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | The name of the bucket | `string` | n/a | yes |
-| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error | `bool` | `false` | no |
-| <a name="input_intelligent_tiering"></a> [intelligent\_tiering](#input\_intelligent\_tiering) | A mapping of tags to assign to the bucket | <pre>object({<br/>    status = optional(string)<br/>    filter = optional(object({<br/>      prefix = optional(string)<br/>      tags   = optional(map(string))<br/>    }))<br/>    tiering = map(any)<br/>  })</pre> | <pre>{<br/>  "status": "Enabled",<br/>  "tiering": {<br/>    "ARCHIVE_ACCESS": {<br/>      "days": 125<br/>    },<br/>    "DEEP_ARCHIVE_ACCESS": {<br/>      "days": 180<br/>    }<br/>  }<br/>}</pre> | no |
-| <a name="input_logging"></a> [logging](#input\_logging) | A mapping of logging configuration | <pre>object({<br/>    target_bucket = string<br/>    target_prefix = optional(string)<br/>  })</pre> | <pre>{<br/>  "target_bucket": ""<br/>}</pre> | no |
-| <a name="input_object_lock_enabled"></a> [object\_lock\_enabled](#input\_object\_lock\_enabled) | A boolean that indicates whether this bucket should have Object Lock enabled | `bool` | `false` | no |
-| <a name="input_server_side_encryption"></a> [server\_side\_encryption](#input\_server\_side\_encryption) | A mapping of server side encryption configuration | <pre>object({<br/>    rule = object({<br/>      bucket_key_enabled = optional(bool)<br/>      apply_server_side_encryption_by_default = optional(object({<br/>        sse_algorithm     = string<br/>        kms_master_key_id = optional(string)<br/>      }))<br/>    })<br/>  })</pre> | <pre>{<br/>  "rule": {<br/>    "apply_server_side_encryption_by_default": {<br/>      "sse_algorithm": "AES256"<br/>    },<br/>    "bucket_key_enabled": false<br/>  }<br/>}</pre> | no |
+| <a name="input_enable_force_destroy"></a> [enable\_force\_destroy](#input\_enable\_force\_destroy) | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error | `bool` | `false` | no |
+| <a name="input_enable_object_lock"></a> [enable\_object\_lock](#input\_enable\_object\_lock) | A boolean that indicates whether this bucket should have Object Lock enabled | `bool` | `false` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to the bucket | `map(any)` | `{}` | no |
-| <a name="input_versioning"></a> [versioning](#input\_versioning) | A mapping of versioning configuration | <pre>object({<br/>    mfa        = optional(string)<br/>    status     = string<br/>    mfa_delete = optional(string)<br/>  })</pre> | <pre>{<br/>  "status": "Enabled"<br/>}</pre> | no |
+| <a name="input_enable_versioning_mfa_delete"></a> [enable\_versioning\_mfa\_delete](#input\_enable\_versioning\_mfa\_delete) | n/a | `string` | `null` | no |
+| <a name="input_versioning_mfa"></a> [versioning\_mfa](#input\_versioning\_mfa) | n/a | `string` | `null` | no |
+| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | n/a | `string` | `"AES256"` | no |
+| <a name="input_enable_sse_bucket_key"></a> [enable\_sse\_bucket\_key](#input\_enable\_sse\_bucket\_key) | n/a | `bool` | `false` | no |
+| <a name="input_sse_kms_master_key_id"></a> [sse\_kms\_master\_key\_id](#input\_sse\_kms\_master\_key\_id) | n/a | `string` | `null` | no |
+| <a name="input_enable_inteligent_tiering"></a> [enable\_inteligent\_tiering](#input\_enable\_inteligent\_tiering) | n/a | `string` | `"Enabled"` | no |
+| <a name="input_tiering"></a> [tiering](#input\_tiering) | n/a | `map(any)` | <pre>{<br/>  "ARCHIVE_ACCESS": {<br/>    "days": 125<br/>  },<br/>  "DEEP_ARCHIVE_ACCESS": {<br/>    "days": 180<br/>  }<br/>}</pre> | no |
+| <a name="input_logging_target_bucket"></a> [logging\_target\_bucket](#input\_logging\_target\_bucket) | n/a | `string` | `null` | no |
+| <a name="input_logging_target_prefix"></a> [logging\_target\_prefix](#input\_logging\_target\_prefix) | n/a | `string` | `null` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_bucket"></a> [bucket](#output\_bucket) | output of s3 bucket |
+| <a name="output_versioning"></a> [versioning](#output\_versioning) | output of s3 bucket versioning |
+| <a name="output_server_side_encryption"></a> [server\_side\_encryption](#output\_server\_side\_encryption) | output of s3 bucket server side encryption |
+| <a name="output_public_access_block"></a> [public\_access\_block](#output\_public\_access\_block) | output of s3 bucket public access block |
+| <a name="output_ownership_controls"></a> [ownership\_controls](#output\_ownership\_controls) | output of s3 bucket ownership controls |
 | <a name="output_intelligent_tiering"></a> [intelligent\_tiering](#output\_intelligent\_tiering) | output of s3 bucket intelligent tiering |
 | <a name="output_logging"></a> [logging](#output\_logging) | output of s3 bucket logging |
-| <a name="output_ownership_controls"></a> [ownership\_controls](#output\_ownership\_controls) | output of s3 bucket ownership controls |
-| <a name="output_public_access_block"></a> [public\_access\_block](#output\_public\_access\_block) | output of s3 bucket public access block |
-| <a name="output_server_side_encryption"></a> [server\_side\_encryption](#output\_server\_side\_encryption) | output of s3 bucket server side encryption |
-| <a name="output_versioning"></a> [versioning](#output\_versioning) | output of s3 bucket versioning |
 <!-- END_TF_DOCS -->

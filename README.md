@@ -86,8 +86,8 @@ pre-commit run -a
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_iam_policy"></a> [iam\_policy](#module\_iam\_policy) | ./modules/iam-policy | n/a |
 | <a name="module_s3"></a> [s3](#module\_s3) | ./modules/s3-bucket | n/a |
+| <a name="module_iam_policy"></a> [iam\_policy](#module\_iam\_policy) | ./modules/iam-policy | n/a |
 
 ## Resources
 
@@ -99,21 +99,30 @@ pre-commit run -a
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_dynamodb"></a> [dynamodb](#input\_dynamodb) | The configuration for the DynamoDB table | <pre>object({<br/>    table_name = optional(string)<br/>    tags       = optional(map(string))<br/>  })</pre> | <pre>{<br/>  "table_name": "",<br/>  "tags": {}<br/>}</pre> | no |
 | <a name="input_env"></a> [env](#input\_env) | The environment to create resources in | `string` | n/a | yes |
-| <a name="input_iam"></a> [iam](#input\_iam) | The configuration for the IAM policy | <pre>object({<br/>    policy_name = string<br/>  })</pre> | <pre>{<br/>  "policy_name": ""<br/>}</pre> | no |
 | <a name="input_product"></a> [product](#input\_product) | The product to create resources for | `string` | n/a | yes |
+| <a name="input_usage"></a> [usage](#input\_usage) | The usage to create resources for | `string` | `"tfstate"` | no |
 | <a name="input_region"></a> [region](#input\_region) | The region to create resources in | `string` | n/a | yes |
-| <a name="input_s3"></a> [s3](#input\_s3) | The configuration for the S3 bucket | <pre>object({<br/>    force_destroy       = bool        # A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error<br/>    object_lock_enabled = bool        # A boolean that indicates whether this bucket should have Object Lock enabled<br/>    tags                = map(string) # A mapping of tags to assign to the bucket<br/>    versioning = object({             # A mapping of versioning configuration<br/>      status = string<br/>    })<br/>    server_side_encryption = object({ # A mapping of server side encryption configuration<br/>      rule = object({<br/>        bucket_key_enabled = bool<br/>        apply_server_side_encryption_by_default = object({<br/>          sse_algorithm = string<br/>        })<br/>      })<br/>    })<br/>    intelligent_tiering = object({ # A mapping of tags to assign to the bucket<br/>      status = string<br/>      filter = object({<br/>        prefix = string<br/>      })<br/>      tiering = map(object({<br/>        days = number<br/>      }))<br/>    })<br/>  })</pre> | <pre>{<br/>  "force_destroy": false,<br/>  "intelligent_tiering": {<br/>    "filter": {<br/>      "prefix": "/"<br/>    },<br/>    "status": "Enabled",<br/>    "tiering": {<br/>      "ARCHIVE_ACCESS": {<br/>        "days": 125<br/>      },<br/>      "DEEP_ARCHIVE_ACCESS": {<br/>        "days": 180<br/>      }<br/>    }<br/>  },<br/>  "object_lock_enabled": false,<br/>  "server_side_encryption": {<br/>    "rule": {<br/>      "apply_server_side_encryption_by_default": {<br/>        "sse_algorithm": "AES256"<br/>      },<br/>      "bucket_key_enabled": false<br/>    }<br/>  },<br/>  "tags": {},<br/>  "versioning": {<br/>    "status": "Enabled"<br/>  }<br/>}</pre> | no |
 | <a name="input_suffix"></a> [suffix](#input\_suffix) | The suffix to append to S3 Bucket | `string` | n/a | yes |
 | <a name="input_tfstate_lock_type"></a> [tfstate\_lock\_type](#input\_tfstate\_lock\_type) | The type of lock to use for the state file (None, DynamoDB, S3) | `string` | `"None"` | no |
-| <a name="input_usage"></a> [usage](#input\_usage) | The usage to create resources for | `string` | `"tfstate"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(string)` | `{}` | no |
+| <a name="input_enable_force_destroy"></a> [enable\_force\_destroy](#input\_enable\_force\_destroy) | n/a | `bool` | `false` | no |
+| <a name="input_enable_object_lock"></a> [enable\_object\_lock](#input\_enable\_object\_lock) | n/a | `bool` | `false` | no |
+| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | n/a | `string` | `"AES256"` | no |
+| <a name="input_enable_sse_bucket_key"></a> [enable\_sse\_bucket\_key](#input\_enable\_sse\_bucket\_key) | n/a | `bool` | `false` | no |
+| <a name="input_kms_master_key_id"></a> [kms\_master\_key\_id](#input\_kms\_master\_key\_id) | n/a | `string` | `null` | no |
+| <a name="input_enable_inteligent_tiering"></a> [enable\_inteligent\_tiering](#input\_enable\_inteligent\_tiering) | n/a | `string` | `"Enabled"` | no |
+| <a name="input_tiering_level"></a> [tiering\_level](#input\_tiering\_level) | n/a | `string` | `"Basic"` | no |
+| <a name="input_logging_target_bucket"></a> [logging\_target\_bucket](#input\_logging\_target\_bucket) | n/a | `string` | `null` | no |
+| <a name="input_logging_target_prefix"></a> [logging\_target\_prefix](#input\_logging\_target\_prefix) | n/a | `string` | `null` | no |
+| <a name="input_dynamodb_table_name"></a> [dynamodb\_table\_name](#input\_dynamodb\_table\_name) | n/a | `string` | `null` | no |
+| <a name="input_iam_policy_name"></a> [iam\_policy\_name](#input\_iam\_policy\_name) | n/a | `string` | `null` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| <a name="output_s3"></a> [s3](#output\_s3) | output of s3 bucket |
 | <a name="output_dynamodb"></a> [dynamodb](#output\_dynamodb) | output of dynamodb |
 | <a name="output_iam"></a> [iam](#output\_iam) | output of iam policy |
-| <a name="output_s3"></a> [s3](#output\_s3) | output of s3 bucket |
 <!-- END_TF_DOCS -->

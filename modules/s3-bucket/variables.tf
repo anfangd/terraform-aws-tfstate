@@ -35,14 +35,16 @@ variable "bucket_name" {
 # These variables have defaults and may be overridden
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "force_destroy" {
+# --- S3 Bucket ---
+
+variable "enable_force_destroy" {
   description = "A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error"
   type        = bool
   nullable    = false
   default     = false
 }
 
-variable "object_lock_enabled" {
+variable "enable_object_lock" {
   description = "A boolean that indicates whether this bucket should have Object Lock enabled"
   type        = bool
   nullable    = false
@@ -55,105 +57,108 @@ variable "tags" {
   default     = {}
 }
 
-variable "versioning" {
-  description = "A mapping of versioning configuration"
-  type = object({
-    mfa        = optional(string)
-    status     = string
-    mfa_delete = optional(string)
-  })
-  nullable = false
-  default = {
-    status = "Enabled"
-  }
+# --- Versioning ---
+
+variable "enable_versioning_mfa_delete" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
 
   validation {
-    condition     = (var.versioning.mfa == null && var.versioning.mfa_delete == null) && var.versioning.mfa_delete == "Enabled" ? can(length(var.versioning.mfa) > 0) : true
-    error_message = "The MFA must be specified when the MFA delete is enabled"
-  }
-  validation {
-    condition     = can(regex("Enabled|Suspended|Disabled", try(var.versioning.status, "")))
-    error_message = "The versioning status must be either Enabled, Suspended or Disabled"
-  }
-  validation {
-    condition     = var.versioning.mfa_delete == null || can(regex("Enabled|Disa bled", var.versioning.mfa_delete, ""))
+    condition     = var.enable_versioning_mfa_delete == null || can(regex("Enabled|Disabled", var.enable_versioning_mfa_delete, ""))
     error_message = "The versioning MFA delete must be either Enabled or Disabled"
   }
 }
 
-variable "server_side_encryption" {
-  description = "A mapping of server side encryption configuration"
-  type = object({
-    rule = object({
-      bucket_key_enabled = optional(bool)
-      apply_server_side_encryption_by_default = optional(object({
-        sse_algorithm     = string
-        kms_master_key_id = optional(string)
-      }))
-    })
-  })
-  default = {
-    rule = {
-      bucket_key_enabled = false
-      apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES256"
-      }
-    }
+variable "versioning_mfa" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
+
+  validation {
+    condition     = (var.versioning_mfa == null && var.enable_versioning_mfa_delete == null) && var.enable_versioning_mfa_delete == "Enabled" ? can(length(var.versioning_mfa) > 0) : true
+    error_message = "The MFA must be specified when the MFA delete is enabled"
   }
 }
 
-# variable "transition_default_minimum_object_size" {
-#   description = "The minimum object size in bytes to be considered for Intelligent-Tiering transition"
-#   type        = string
-#   default     = "all_storage_classes_128K"
+# --- Server Side Encryption ---
 
-#   validation {
-#     condition     = can(regex("all_storage_classes_128K|varies_by_storage_class", var.transition_default_minimum_object_size))
-#     error_message = "The transition default minimum object size must be either all_storage_classes_128K or varies_by_storage_class"
-#   }
-# }
-
-# variable "lifecycle_rules" {
-#   description = "A list of lifecycle rules"
-#   type        = list(any)
-#   default     = []
-# }
-
-variable "intelligent_tiering" {
-  description = "A mapping of tags to assign to the bucket"
-  type = object({
-    status = optional(string)
-    filter = optional(object({
-      prefix = optional(string)
-      tags   = optional(map(string))
-    }))
-    tiering = map(any)
-  })
-  default = {
-    status = "Enabled"
-    tiering = {
-      ARCHIVE_ACCESS = {
-        days = 125
-      }
-      DEEP_ARCHIVE_ACCESS = {
-        days = 180
-      }
-    }
-  }
+variable "sse_algorithm" {
+  description = ""
+  type        = string
+  nullable    = false
+  default     = "AES256"
 
   validation {
-    condition     = var.intelligent_tiering.status == null || can(regex("Enabled|Disabled", var.intelligent_tiering.status))
+    condition     = var.sse_algorithm == null || can(regex("AES256|aws:kms|aws:kms:dsse", var.sse_algorithm))
+    error_message = "The server side encryption algorithm must be either AES256, aws:kms or aws:kms:dsse"
+  }
+}
+
+variable "enable_sse_bucket_key" {
+  description = ""
+  type        = bool
+  nullable    = true
+  default     = false
+}
+
+variable "sse_kms_master_key_id" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
+
+  validation {
+    condition = (
+      (var.sse_algorithm != "aws:kms" && var.sse_kms_master_key_id == null)
+      || (can(regex("aws:kms", var.sse_algorithm)) && var.sse_kms_master_key_id != null && can(length(var.sse_kms_master_key_id) > 0))
+    )
+    error_message = "The KMS master key ID must be specified when the server side encryption algorithm is aws:kms"
+  }
+}
+
+# --- Inteligent Tiering ---
+
+variable "enable_inteligent_tiering" {
+  description = ""
+  type        = string
+  nullable    = false
+  default     = "Enabled"
+
+  validation {
+    condition     = var.enable_inteligent_tiering == null || can(regex("Enabled|Disabled", var.enable_inteligent_tiering))
     error_message = "The intelligent tiering status must be either Enabled or Disabled"
   }
 }
 
-variable "logging" {
-  description = "A mapping of logging configuration"
-  type = object({
-    target_bucket = string
-    target_prefix = optional(string)
-  })
+variable "tiering" {
+  description = ""
+  type        = map(any)
+  nullable    = false
   default = {
-    target_bucket = ""
+    ARCHIVE_ACCESS = {
+      days = 125
+    }
+    DEEP_ARCHIVE_ACCESS = {
+      days = 180
+    }
   }
+}
+
+# --- Logging ---
+
+variable "logging_target_bucket" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
+}
+
+variable "logging_target_prefix" {
+  description = ""
+  type        = string
+  nullable    = true
+  default     = null
 }
