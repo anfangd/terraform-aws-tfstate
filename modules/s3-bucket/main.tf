@@ -37,19 +37,6 @@ resource "aws_s3_bucket_versioning" "this" {
   }
 }
 
-resource "aws_s3_bucket_object_lock_configuration" "this" {
-  bucket              = aws_s3_bucket.this.id
-  object_lock_enabled = try(var.enable_object_lock, false) == false ? null : "Enabled" # Valid values: Enabled.
-
-  rule {
-    default_retention {
-      mode  = var.object_lock_mode # Valid values: COMPLIANCE, GOVERNANCE.
-      days  = var.object_lock_days
-      years = var.object_lock_years
-    }
-  }
-}
-
 resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   bucket = aws_s3_bucket.this.id
 

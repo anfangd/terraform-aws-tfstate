@@ -71,40 +71,6 @@ variable "versioning_mfa" {
   }
 }
 
-# --- Object Lock ---
-variable "enable_object_lock" {
-  description = "A boolean that indicates whether object lock is enabled"
-  type        = bool
-  nullable    = true
-  default     = false
-}
-
-variable "object_lock_mode" {
-  description = "The Object Lock mode that you want to apply to the bucket. Valid values are COMPLIANCE and GOVERNANCE."
-  type        = string
-  nullable    = true
-  default     = "COMPLIANCE"
-
-  validation {
-    condition     = var.object_lock_mode == null || can(regex("COMPLIANCE|GOVERNANCE", var.object_lock_mode))
-    error_message = "The object lock mode must be either COMPLIANCE or GOVERNANCE"
-  }
-}
-
-variable "object_lock_days" {
-  description = "Days to retain objects"
-  type        = number
-  nullable    = true
-  default     = 1
-}
-
-variable "object_lock_years" {
-  description = "Days to retain objects"
-  type        = number
-  nullable    = true
-  default     = null
-}
-
 # --- Server Side Encryption ---
 
 variable "sse_algorithm" {

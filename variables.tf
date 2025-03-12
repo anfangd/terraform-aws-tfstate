@@ -140,13 +140,6 @@ variable "enable_force_destroy" {
   default     = false
 }
 
-variable "enable_object_lock" {
-  description = "A boolean that indicates whether object lock is enabled"
-  type        = bool
-  nullable    = false
-  default     = false
-}
-
 # --- S3 Bucket Server Side Encryption ---
 
 variable "sse_algorithm" {

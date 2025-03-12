@@ -1,6 +1,6 @@
 # Terraform AWS tfstate S3 Backend
 
-This terraform module create Terraform Backend using Amazon S3 to store tfstate.
+This terraform module create Terraform Backend Storage using Amazon S3 to store tfstate.
 
 ## Resource Overview
 
@@ -73,7 +73,7 @@ pre-commit run -a
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.83 |
 
 ## Providers
@@ -107,7 +107,6 @@ pre-commit run -a
 | <a name="input_tfstate_lock_type"></a> [tfstate\_lock\_type](#input\_tfstate\_lock\_type) | The type of lock to use for the state file (None, DynamoDB, S3) | `string` | `"None"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | The tags to assign to the resources | `map(string)` | `{}` | no |
 | <a name="input_enable_force_destroy"></a> [enable\_force\_destroy](#input\_enable\_force\_destroy) | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error | `bool` | `false` | no |
-| <a name="input_enable_object_lock"></a> [enable\_object\_lock](#input\_enable\_object\_lock) | A boolean that indicates whether object lock is enabled | `bool` | `false` | no |
 | <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | The server side encryption algorithm | `string` | `"AES256"` | no |
 | <a name="input_enable_sse_bucket_key"></a> [enable\_sse\_bucket\_key](#input\_enable\_sse\_bucket\_key) | A boolean that indicates whether server side encryption is enabled | `bool` | `false` | no |
 | <a name="input_kms_master_key_id"></a> [kms\_master\_key\_id](#input\_kms\_master\_key\_id) | The KMS master key ID | `string` | `null` | no |

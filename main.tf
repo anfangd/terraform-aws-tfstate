@@ -69,7 +69,6 @@ module "s3" {
 
   bucket_name          = local.s3.bucket_name
   enable_force_destroy = var.enable_force_destroy
-  enable_object_lock   = var.enable_object_lock
   tags                 = local.s3.tags
 
   # enable_versioning_mfa_delete = "Disabled"
