@@ -105,18 +105,18 @@ pre-commit run -a
 | <a name="input_region"></a> [region](#input\_region) | The region to create resources in | `string` | n/a | yes |
 | <a name="input_suffix"></a> [suffix](#input\_suffix) | The suffix to append to S3 Bucket | `string` | n/a | yes |
 | <a name="input_tfstate_lock_type"></a> [tfstate\_lock\_type](#input\_tfstate\_lock\_type) | The type of lock to use for the state file (None, DynamoDB, S3) | `string` | `"None"` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(string)` | `{}` | no |
-| <a name="input_enable_force_destroy"></a> [enable\_force\_destroy](#input\_enable\_force\_destroy) | n/a | `bool` | `false` | no |
-| <a name="input_enable_object_lock"></a> [enable\_object\_lock](#input\_enable\_object\_lock) | n/a | `bool` | `false` | no |
-| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | n/a | `string` | `"AES256"` | no |
-| <a name="input_enable_sse_bucket_key"></a> [enable\_sse\_bucket\_key](#input\_enable\_sse\_bucket\_key) | n/a | `bool` | `false` | no |
-| <a name="input_kms_master_key_id"></a> [kms\_master\_key\_id](#input\_kms\_master\_key\_id) | n/a | `string` | `null` | no |
-| <a name="input_enable_inteligent_tiering"></a> [enable\_inteligent\_tiering](#input\_enable\_inteligent\_tiering) | n/a | `string` | `"Enabled"` | no |
-| <a name="input_tiering_level"></a> [tiering\_level](#input\_tiering\_level) | n/a | `string` | `"Basic"` | no |
-| <a name="input_logging_target_bucket"></a> [logging\_target\_bucket](#input\_logging\_target\_bucket) | n/a | `string` | `null` | no |
-| <a name="input_logging_target_prefix"></a> [logging\_target\_prefix](#input\_logging\_target\_prefix) | n/a | `string` | `null` | no |
-| <a name="input_dynamodb_table_name"></a> [dynamodb\_table\_name](#input\_dynamodb\_table\_name) | n/a | `string` | `null` | no |
-| <a name="input_iam_policy_name"></a> [iam\_policy\_name](#input\_iam\_policy\_name) | n/a | `string` | `null` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | The tags to assign to the resources | `map(string)` | `{}` | no |
+| <a name="input_enable_force_destroy"></a> [enable\_force\_destroy](#input\_enable\_force\_destroy) | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error | `bool` | `false` | no |
+| <a name="input_enable_object_lock"></a> [enable\_object\_lock](#input\_enable\_object\_lock) | A boolean that indicates whether object lock is enabled | `bool` | `false` | no |
+| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | The server side encryption algorithm | `string` | `"AES256"` | no |
+| <a name="input_enable_sse_bucket_key"></a> [enable\_sse\_bucket\_key](#input\_enable\_sse\_bucket\_key) | A boolean that indicates whether server side encryption is enabled | `bool` | `false` | no |
+| <a name="input_kms_master_key_id"></a> [kms\_master\_key\_id](#input\_kms\_master\_key\_id) | The KMS master key ID | `string` | `null` | no |
+| <a name="input_enable_inteligent_tiering"></a> [enable\_inteligent\_tiering](#input\_enable\_inteligent\_tiering) | A boolean that indicates whether intelligent tiering is enabled | `bool` | `true` | no |
+| <a name="input_tiering_level"></a> [tiering\_level](#input\_tiering\_level) | The tiering level | `string` | `"Basic"` | no |
+| <a name="input_logging_target_bucket"></a> [logging\_target\_bucket](#input\_logging\_target\_bucket) | The target bucket for access logs | `string` | `null` | no |
+| <a name="input_logging_target_prefix"></a> [logging\_target\_prefix](#input\_logging\_target\_prefix) | The target prefix for access logs | `string` | `null` | no |
+| <a name="input_dynamodb_table_name"></a> [dynamodb\_table\_name](#input\_dynamodb\_table\_name) | The name of the DynamoDB table to lock the state file | `string` | `null` | no |
+| <a name="input_iam_policy_name"></a> [iam\_policy\_name](#input\_iam\_policy\_name) | The name of the IAM policy which grants access to the S3 bucket | `string` | `null` | no |
 
 ## Outputs
 

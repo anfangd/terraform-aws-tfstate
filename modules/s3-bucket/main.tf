@@ -6,9 +6,8 @@ resource "aws_s3_bucket" "this" {
   bucket = var.bucket_name
   # bucket_prefix =
 
-  force_destroy       = var.enable_force_destroy
-  object_lock_enabled = var.enable_object_lock
-  tags                = var.tags
+  force_destroy = var.enable_force_destroy
+  tags          = var.tags
 
   lifecycle {
     precondition {
@@ -34,7 +33,20 @@ resource "aws_s3_bucket_versioning" "this" {
     status = "Enabled"
 
     # Valid values: "Enabled" or "Disabled"
-    mfa_delete = try(var.enable_versioning_mfa_delete, "Disabled")
+    mfa_delete = var.enable_versioning_mfa_delete ? "Enabled" : "Disabled"
+  }
+}
+
+resource "aws_s3_bucket_object_lock_configuration" "this" {
+  bucket              = aws_s3_bucket.this.id
+  object_lock_enabled = try(var.enable_object_lock, false) == false ? null : "Enabled" # Valid values: Enabled.
+
+  rule {
+    default_retention {
+      mode  = var.object_lock_mode # Valid values: COMPLIANCE, GOVERNANCE.
+      days  = var.object_lock_days
+      years = var.object_lock_years
+    }
   }
 }
 
@@ -95,7 +107,7 @@ resource "aws_s3_bucket_ownership_controls" "this" {
 resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
   name   = aws_s3_bucket.this.id
   bucket = aws_s3_bucket.this.id
-  status = try(tobool(var.enable_inteligent_tiering) ? "Enabled" : "Disabled", title(lower(var.enable_inteligent_tiering)), null)
+  status = var.enable_inteligent_tiering ? "Enabled" : "Disabled"
 
   # MEMO: This module DOES NOT implement filter
   # filter {{}

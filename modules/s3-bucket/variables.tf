@@ -44,13 +44,6 @@ variable "enable_force_destroy" {
   default     = false
 }
 
-variable "enable_object_lock" {
-  description = "A boolean that indicates whether this bucket should have Object Lock enabled"
-  type        = bool
-  nullable    = false
-  default     = false
-}
-
 variable "tags" {
   description = "A mapping of tags to assign to the bucket"
   type        = map(any)
@@ -60,33 +53,62 @@ variable "tags" {
 # --- Versioning ---
 
 variable "enable_versioning_mfa_delete" {
-  description = ""
-  type        = string
+  description = "A boolean that indicates whether MFA delete is enabled"
+  type        = bool
   nullable    = true
   default     = null
-
-  validation {
-    condition     = var.enable_versioning_mfa_delete == null || can(regex("Enabled|Disabled", var.enable_versioning_mfa_delete, ""))
-    error_message = "The versioning MFA delete must be either Enabled or Disabled"
-  }
 }
 
 variable "versioning_mfa" {
-  description = ""
+  description = "Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device."
   type        = string
   nullable    = true
   default     = null
 
   validation {
-    condition     = (var.versioning_mfa == null && var.enable_versioning_mfa_delete == null) && var.enable_versioning_mfa_delete == "Enabled" ? can(length(var.versioning_mfa) > 0) : true
+    condition     = (var.versioning_mfa == null && var.enable_versioning_mfa_delete == null) && var.enable_versioning_mfa_delete == true ? can(length(var.versioning_mfa) > 0) : true
     error_message = "The MFA must be specified when the MFA delete is enabled"
   }
+}
+
+# --- Object Lock ---
+variable "enable_object_lock" {
+  description = "A boolean that indicates whether object lock is enabled"
+  type        = bool
+  nullable    = true
+  default     = false
+}
+
+variable "object_lock_mode" {
+  description = "The Object Lock mode that you want to apply to the bucket. Valid values are COMPLIANCE and GOVERNANCE."
+  type        = string
+  nullable    = true
+  default     = "COMPLIANCE"
+
+  validation {
+    condition     = var.object_lock_mode == null || can(regex("COMPLIANCE|GOVERNANCE", var.object_lock_mode))
+    error_message = "The object lock mode must be either COMPLIANCE or GOVERNANCE"
+  }
+}
+
+variable "object_lock_days" {
+  description = "Days to retain objects"
+  type        = number
+  nullable    = true
+  default     = 1
+}
+
+variable "object_lock_years" {
+  description = "Days to retain objects"
+  type        = number
+  nullable    = true
+  default     = null
 }
 
 # --- Server Side Encryption ---
 
 variable "sse_algorithm" {
-  description = ""
+  description = "The server side encryption algorithm. Valid values are AES256, aws:kms and aws:kms:dsse"
   type        = string
   nullable    = false
   default     = "AES256"
@@ -98,14 +120,14 @@ variable "sse_algorithm" {
 }
 
 variable "enable_sse_bucket_key" {
-  description = ""
+  description = "A boolean that indicates whether the bucket key should be enabled"
   type        = bool
   nullable    = true
   default     = false
 }
 
 variable "sse_kms_master_key_id" {
-  description = ""
+  description = "The KMS master key ID"
   type        = string
   nullable    = true
   default     = null
@@ -122,19 +144,14 @@ variable "sse_kms_master_key_id" {
 # --- Inteligent Tiering ---
 
 variable "enable_inteligent_tiering" {
-  description = ""
-  type        = string
+  description = "A boolean that indicates whether intelligent tiering is enabled"
+  type        = bool
   nullable    = false
-  default     = "Enabled"
-
-  validation {
-    condition     = var.enable_inteligent_tiering == null || can(regex("Enabled|Disabled", var.enable_inteligent_tiering))
-    error_message = "The intelligent tiering status must be either Enabled or Disabled"
-  }
+  default     = true
 }
 
 variable "tiering" {
-  description = ""
+  description = "A mapping of tiering to assign to the bucket"
   type        = map(any)
   nullable    = false
   default = {
@@ -150,14 +167,14 @@ variable "tiering" {
 # --- Logging ---
 
 variable "logging_target_bucket" {
-  description = ""
+  description = "The name of the bucket where the log files should be stored"
   type        = string
   nullable    = true
   default     = null
 }
 
 variable "logging_target_prefix" {
-  description = ""
+  description = "The prefix to apply to the log files"
   type        = string
   nullable    = true
   default     = null
